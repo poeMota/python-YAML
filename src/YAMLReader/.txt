@@ -1,0 +1,53 @@
+Key
+----------------
+{
+    Key: Value
+}
+
+
+ListOpener
+----------------
+ListOpener: [
+    ...
+]
+
+
+DictOpener
+----------------
+DictOpener: {
+    ...
+}
+
+
+DictMember
+----------------
+{
+    ...
+    DictMember: ...
+    ...
+}
+
+
+ListMember
+----------------
+[
+    ...
+    ListMember
+    ...
+]
+
+
+ListStart
+-----------------
+[
+    ListStart
+    ...
+]
+
+
+DictStart
+-----------------
+{
+    DictStart: ...
+    ...
+}
