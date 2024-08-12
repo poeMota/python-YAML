@@ -2,13 +2,13 @@ from .token import Token
 import json
 
 
-def read(path):
+def read(path, indent: int = 2):
     with open(path, "r", encoding="utf8") as file:
         root = Token(None, None, -1, True)
         indent_stack = {-1: root}  # {indent_level: token}
 
         for line in file:
-            token = TokenParse(line)
+            token = TokenParse(line, indent)
             if not token:
                 continue
 
@@ -18,23 +18,28 @@ def read(path):
         return TokensTreeConvert(root)
 
 
-def TokenParse(token_str: str):
+def TokenParse(token_str: str, ind: int):
     onList = False
     if "- " in token_str:
         onList = True
 
-    key = token_str.replace("- ", "").replace(' ', '').replace('\n', '')#.replace('"', '').replace("'", '')
+    indent = GetIndent(token_str, ind)
+    key = token_str.replace("- ", "").lstrip().replace('\n', '').replace(': ', ':')
     value = None
     other_token = None
-    if not key:
-        return
-    #if '#' in key:
-    #    key = key.split('#')[0]
+
+    if not key: return
+
+    # Remove comments
+    if key.startswith('#'): return
+    if ' #' in key:
+        key = key.split(' #')[0]
+
     if ':' in key:
         keys = key.split(':')
         if len(keys) > 2:
             key = keys[0]
-            other_token = TokenParse(':'.join(keys[1::]))
+            other_token = TokenParse(':'.join(keys[1::]), ind)
         else:
             key, value = keys
             if not value: value = None
@@ -42,7 +47,7 @@ def TokenParse(token_str: str):
     token = Token(
         TryParseKey(key),
         TryParseKey(value),
-        GetIndent(token_str),
+        indent,
         onList
     )
     if other_token:
@@ -52,7 +57,7 @@ def TokenParse(token_str: str):
 
 
 def TokensTreeConvert(token: Token):
-    key = token.key if type(token.key) is not list else str(token.key).replace('[', '').replace(']', '')
+    key = token.key if type(token.key) is not list else str(token.key)
     if not token.childrens:
         if token.value is not None:
             return {key: token.value}
@@ -61,10 +66,9 @@ def TokensTreeConvert(token: Token):
     childrens_dict = {}
     if token.childrens[0].onList:
         childrens_dict = []
-    if token.key == "nodes": print(childrens_dict, token)
 
     for child in token.childrens:
-        ckey = child.key if type(child.key) is not list else str(child.key).replace('[', '').replace(']', '')
+        ckey = child.key if type(child.key) is not list else str(child.key)
         # Dict start in list
         if (child.value is not None or child.childrens) and child.onList:
             if lastItem: Merge(childrens_dict, lastItem)
@@ -116,18 +120,19 @@ def Merge(l: list | dict, l2):
 
 
 def TryParseKey(token: str):
-    if token is None:
-        return token
     try:
-        return json.loads(token)
+        return json.loads(token.replace('"', '').replace("'", ''))
     except: pass
+
+    if token is None:
+        return
     # Split into list
-    if ',' in token:
-        return [TryParseKey(t) for t in token.split(',')]
+    #if ',' in token:
+    #    return [TryParseKey(t) for t in token.split(',')]
     # Try parse float
-    elif '.' in token:
+    if '.' in token:
         try:
-            return float(token.removesuffix("rad"))
+            return float(token)
         except: return token
     # Try parse bool
     elif token.lower() == "true":
@@ -136,16 +141,16 @@ def TryParseKey(token: str):
         return False
     else:
         # Try parse int
-        try: return int(token.removesuffix("rad"))
+        try: return int(token)
         # Else string
         except: return token
 
 
-def GetIndent(string: str):
+def GetIndent(string: str, ind: int):
     indent = 0
     for ch in string:
         if ch == " ": indent += 1
         else:
-            if indent % 2 == 0: return indent // 2 + ('- ' in string * 2)
-            else: raise ValueError("Incorrect indentation level")
+            if indent % ind == 0: return indent // ind + ('- ' in string * ind)
+            else: raise ValueError(f"Incorrect indentation level: {string}")
 

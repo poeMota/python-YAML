@@ -1,2 +1,3 @@
-from src.yamlReader import read
+from .src.reader import read
+from .src.writer import write
 
