@@ -4,8 +4,8 @@ import json
 
 def read(path, indent: int = 2):
     with open(path, "r", encoding="utf8") as file:
-        root = Token(None, None, -1, True)
-        indent_stack = {-1: root}  # {indent_level: token}
+        root = Token(None, None, 0, True)
+        indent_stack = {root.indent: root}  # {indent_level: token}
 
         for line in file:
             token = TokenParse(line, indent)
@@ -24,7 +24,7 @@ def TokenParse(token_str: str, ind: int):
         onList = True
 
     indent = GetIndent(token_str, ind)
-    key = token_str.replace("- ", "").lstrip().replace('\n', '').replace(': ', ':')
+    key = token_str.replace("- ", "").lstrip().replace('\n', '').replace(': ', ':').replace('\ufeff', '')
     value = None
     other_token = None
 
