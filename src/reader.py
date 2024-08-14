@@ -19,7 +19,7 @@ def read(path, indent: int = 2):
                 i = tokent.indent - 1
                 while True:
                     if i < root.indent:
-                        raise Exception(f"Fatal: token cannot found his parent - {token.key}: {token.value}"
+                        raise Exception(f"Fatal: token cannot found his parent, token - {token.key}: {token.value}")
                     if i in token_stack:
                         token_stack[i].add_child(token)
                         break
