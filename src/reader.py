@@ -4,7 +4,7 @@ import json
 
 def read(path, indent: int = 2):
     with open(path, "r", encoding="utf8") as file:
-        root = Token(None, None, 0, True)
+        root = Token(None, None, -1, True)
         indent_stack = {root.indent: root}  # {indent_level: token}
 
         for line in file:
@@ -13,7 +13,18 @@ def read(path, indent: int = 2):
                 continue
 
             indent_stack[token.indent] = token
-            indent_stack[token.indent - 1].add_child(token)
+            if token.indent - 1 in indent_stack:
+                indent_stack[token.indent - 1].add_child(token)
+            else:
+                i = tokent.indent - 1
+                while True:
+                    if i < root.indent:
+                        raise Exception(f"Fatal: token cannot found his parent - {token.key}: {token.value}"
+                    if i in token_stack:
+                        token_stack[i].add_child(token)
+                        break
+                    i -= 1
+
 
         return TokensTreeConvert(root)
 
