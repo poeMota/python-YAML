@@ -81,11 +81,11 @@ def TokensTreeConvert(token: Token):
     for child in token.childrens:
         ckey = child.key if type(child.key) is not list else str(child.key)
         # Dict start in list
-        if (child.value is not None or child.childrens) and child.onList:
+        if (child.value != "" or child.childrens) and child.onList:
             if lastItem: Merge(childrens_dict, lastItem)
             lastItem = {ckey: child.value}
         # List item
-        if not child.value is not None and child.onList and not child.childrens:
+        if not child.value != "" and child.onList and not child.childrens:
             if lastItem is None:
                 lastItem = child.key
             elif type(lastItem) is not list:
@@ -94,7 +94,7 @@ def TokensTreeConvert(token: Token):
             else:
                 Merge(lastItem, child.key)
         # dict member (key: value)
-        if child.value is not None and not child.onList and not child.childrens:
+        if child.value != "" and not child.onList and not child.childrens:
             if lastItem is None:
                 lastItem = {ckey: child.value}
             elif type(lastItem) is not dict:
@@ -103,7 +103,7 @@ def TokensTreeConvert(token: Token):
             else:
                 Merge(lastItem, {ckey: child.value})
         # Dict or list opener (key: dict/list)
-        if not child.value is not None and child.childrens:
+        if not child.value != "" and child.childrens:
             if lastItem is None:
                 lastItem = {ckey: TokensTreeConvert(child)}
             elif type(lastItem) is not dict:
@@ -136,7 +136,7 @@ def TryParseKey(token: str):
     except: pass
 
     if token is None:
-        return
+        return ""
     if token == "null":
         return None
     # Split into list
