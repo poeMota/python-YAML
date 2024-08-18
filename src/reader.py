@@ -137,6 +137,8 @@ def TryParseKey(token: str):
 
     if token is None:
         return
+    if token == "null":
+        return None
     # Split into list
     #if ',' in token:
     #    return [TryParseKey(t) for t in token.split(',')]

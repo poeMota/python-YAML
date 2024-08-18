@@ -30,6 +30,9 @@ def ConvertToYaml(content: dict | list, nesting: int, indent: int):
         for key in content:
             ret += f"\n{nest * indent * ' '}{key}:{' ' if '!' not in str(key) else ''}{ConvertToYaml(content[key], nest, indent)}"
     else:
+        if content == None:
+            return "null"
+
         return str(content)
     return ret
 
