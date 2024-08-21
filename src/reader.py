@@ -49,8 +49,12 @@ def TokenParse(token_str: str, ind: int):
     if ':' in key:
         keys = key.split(':')
         if len(keys) > 2:
-            key = keys[0]
-            other_token = TokenParse(':'.join(keys[1::]), ind)
+            if ((keys[1].startswith("\"") and keys[-1].endswith("\"")) or
+                (keys[1].startswith("\'") and keys[-1].endswith("\'"))):
+                value = "".join(keys[1::])
+            else:
+                key = keys[0]
+                other_token = TokenParse(':'.join(keys[1::]), ind)
         else:
             key, value = keys
             if not value: value = None
